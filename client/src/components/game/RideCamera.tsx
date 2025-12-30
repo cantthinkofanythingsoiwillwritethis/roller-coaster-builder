@@ -67,7 +67,7 @@ export function RideCamera() {
     let speed: number;
     
     if (hasChainLift && rideProgress < firstPeakT) {
-      const chainSpeed = 0.3 * rideSpeed;
+      const chainSpeed = 0.9 * rideSpeed;
       speed = chainSpeed;
       velocityRef.current = chainSpeed;
     } else {
