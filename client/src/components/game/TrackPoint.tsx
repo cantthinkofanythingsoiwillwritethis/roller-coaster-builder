@@ -56,7 +56,7 @@ export function TrackPoint({ id, position, index }: TrackPointProps) {
       controls.removeEventListener("dragging-changed", handleDraggingChanged);
       controls.removeEventListener("objectChange", handleObjectChange);
     };
-  }, [id, updateTrackPoint, setIsDraggingPoint]);
+  }, [id, updateTrackPoint, setIsDraggingPoint, isSelected, meshReady]);
   
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     if (mode !== "build") return;
