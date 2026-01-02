@@ -35,15 +35,8 @@ export function Track() {
     const railData: { point: THREE.Vector3; tilt: number; tangent: THREE.Vector3; normal: THREE.Vector3 }[] = [];
     const numSamples = Math.max(trackPoints.length * 20, 100);
     
-    // Use parallel transport to maintain a stable normal through vertical sections
-    let prevNormal = new THREE.Vector3(0, 1, 0);
-    const firstTangent = curve.getTangent(0);
-    // Initialize normal perpendicular to first tangent
-    prevNormal.crossVectors(firstTangent, new THREE.Vector3(0, 1, 0));
-    if (prevNormal.length() < 0.01) {
-      prevNormal.crossVectors(firstTangent, new THREE.Vector3(1, 0, 0));
-    }
-    prevNormal.normalize();
+    // Transport UP vector instead of normal - keeps frame gravity-anchored
+    let prevUp = new THREE.Vector3(0, 1, 0);
     
     for (let i = 0; i <= numSamples; i++) {
       const t = i / numSamples;
@@ -51,20 +44,34 @@ export function Track() {
       const tangent = curve.getTangent(t).normalize();
       const tilt = interpolateTilt(trackPoints, t, isLooped);
       
-      // Parallel transport: project previous normal onto plane perpendicular to current tangent
-      const dot = prevNormal.dot(tangent);
-      const normal = prevNormal.clone().sub(tangent.clone().multiplyScalar(dot)).normalize();
+      // Project world up onto plane perpendicular to tangent
+      const worldUp = new THREE.Vector3(0, 1, 0);
+      const dot = worldUp.dot(tangent);
+      const projectedUp = worldUp.clone().sub(tangent.clone().multiplyScalar(dot));
       
-      // Handle degenerate case
-      if (normal.length() < 0.01) {
-        normal.crossVectors(tangent, new THREE.Vector3(0, 1, 0));
-        if (normal.length() < 0.01) {
-          normal.crossVectors(tangent, new THREE.Vector3(1, 0, 0));
+      let up: THREE.Vector3;
+      if (projectedUp.length() > 0.1) {
+        // Normal case: use projected world up
+        up = projectedUp.normalize();
+      } else {
+        // Degenerate case (tangent is vertical): use previous up transported
+        const prevDot = prevUp.dot(tangent);
+        up = prevUp.clone().sub(tangent.clone().multiplyScalar(prevDot));
+        if (up.length() > 0.01) {
+          up.normalize();
+        } else {
+          // Fallback: use a consistent side vector
+          up.set(1, 0, 0);
+          const d = up.dot(tangent);
+          up.sub(tangent.clone().multiplyScalar(d)).normalize();
         }
-        normal.normalize();
       }
       
-      prevNormal.copy(normal);
+      prevUp.copy(up);
+      
+      // Derive normal (sideways) from tangent × up
+      const normal = new THREE.Vector3().crossVectors(tangent, up).normalize();
+      
       railData.push({ point, tilt, tangent, normal });
     }
     
