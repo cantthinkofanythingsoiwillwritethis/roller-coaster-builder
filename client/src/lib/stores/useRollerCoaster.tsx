@@ -242,27 +242,26 @@ export const useRollerCoaster = create<RollerCoasterState>((set, get) => ({
         });
       }
       
-      // Loop exit position (last point of loop)
-      const loopExit = loopPoints[loopPoints.length - 1].position.clone();
+      // === EXIT: Replace the last loop point so it ends exactly at the next legacy point ===
+      // This eliminates any hook - the loop simply ends where the track continues
+      const nextPoint = state.trackPoints[pointIndex + 1];
       
-      // === EXIT: Shift ALL downstream legacy points by the loop's final lateral offset ===
-      // This ensures the entire rest of the track aligns with the loop exit - NO hook
-      const lateralShift = right.clone().multiplyScalar(helixSeparation);
+      if (nextPoint && loopPoints.length > 0) {
+        // Replace the final loop point's X/Z with the next legacy point's position
+        // Keep the Y at ground level (same as legacy point)
+        const lastLoopPoint = loopPoints[loopPoints.length - 1];
+        lastLoopPoint.position.x = nextPoint.position.x;
+        lastLoopPoint.position.z = nextPoint.position.z;
+        lastLoopPoint.position.y = nextPoint.position.y;
+      }
       
-      // Translate all legacy points after the loop entry
-      const shiftedLegacyPoints: TrackPoint[] = state.trackPoints.slice(pointIndex + 1).map((pt, idx) => ({
-        ...pt,
-        id: `point-${++pointCounter}`,
-        position: pt.position.clone().add(lateralShift)
-      }));
-      
-      // Combine: all before entry + approach + entry + loop + shifted legacy points
+      // Combine: all before entry + approach + entry + loop + rest of legacy (skip the one we merged into)
       const newTrackPoints = [
         ...state.trackPoints.slice(0, pointIndex), // All points before entry
         ...approachPoints,                          // Smooth approach to entry
         entryPoint,                                 // The entry point itself
-        ...loopPoints,                              // The loop (exits at helix offset)
-        ...shiftedLegacyPoints                      // Legacy points shifted to match loop exit
+        ...loopPoints,                              // The loop (now ends at next legacy point)
+        ...state.trackPoints.slice(pointIndex + 2) // Skip original entry AND next point (merged)
       ];
       
       return { trackPoints: newTrackPoints };
