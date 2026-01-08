@@ -406,17 +406,25 @@ export function Track() {
               <meshStandardMaterial color="#8B5A2B" />
             </mesh>
             
-            {height > 2 && (
+            {height > 1.5 && (
               <>
+                {/* Horizontal braces at multiple heights */}
                 <mesh 
-                  position={[pos.x, height * 0.3, pos.z]} 
+                  position={[pos.x, height * 0.2, pos.z]} 
                   rotation={[0, angle, 0]}
                 >
                   <boxGeometry args={[braceSize, braceSize, railOffset * 2.2]} />
                   <meshStandardMaterial color="#A0522D" />
                 </mesh>
                 <mesh 
-                  position={[pos.x, height * 0.6, pos.z]} 
+                  position={[pos.x, height * 0.5, pos.z]} 
+                  rotation={[0, angle, 0]}
+                >
+                  <boxGeometry args={[braceSize, braceSize, railOffset * 2.2]} />
+                  <meshStandardMaterial color="#A0522D" />
+                </mesh>
+                <mesh 
+                  position={[pos.x, height * 0.8, pos.z]} 
                   rotation={[0, angle, 0]}
                 >
                   <boxGeometry args={[braceSize, braceSize, railOffset * 2.2]} />
@@ -425,14 +433,44 @@ export function Track() {
               </>
             )}
             
-            {height > 3 && (
-              <mesh 
-                position={[pos.x, height * 0.45, pos.z]} 
-                rotation={[crossAngle, angle, 0]}
-              >
-                <boxGeometry args={[crossSize, crossLength * 0.5, crossSize]} />
-                <meshStandardMaterial color="#CD853F" />
-              </mesh>
+            {height > 2 && (
+              <>
+                {/* X-pattern diagonal cross braces */}
+                <mesh 
+                  position={[pos.x, height * 0.35, pos.z]} 
+                  rotation={[crossAngle, angle, 0]}
+                >
+                  <boxGeometry args={[crossSize, crossLength * 0.4, crossSize]} />
+                  <meshStandardMaterial color="#CD853F" />
+                </mesh>
+                <mesh 
+                  position={[pos.x, height * 0.35, pos.z]} 
+                  rotation={[-crossAngle, angle, 0]}
+                >
+                  <boxGeometry args={[crossSize, crossLength * 0.4, crossSize]} />
+                  <meshStandardMaterial color="#CD853F" />
+                </mesh>
+              </>
+            )}
+            
+            {height > 4 && (
+              <>
+                {/* Additional X-pattern for taller supports */}
+                <mesh 
+                  position={[pos.x, height * 0.65, pos.z]} 
+                  rotation={[crossAngle, angle, 0]}
+                >
+                  <boxGeometry args={[crossSize, crossLength * 0.4, crossSize]} />
+                  <meshStandardMaterial color="#CD853F" />
+                </mesh>
+                <mesh 
+                  position={[pos.x, height * 0.65, pos.z]} 
+                  rotation={[-crossAngle, angle, 0]}
+                >
+                  <boxGeometry args={[crossSize, crossLength * 0.4, crossSize]} />
+                  <meshStandardMaterial color="#CD853F" />
+                </mesh>
+              </>
             )}
           </group>
         );
