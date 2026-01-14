@@ -24,7 +24,7 @@ function MusicController() {
     
     const dayMusic = new Audio(`${base}sounds/music.mp3`);
     dayMusic.loop = true;
-    dayMusic.volume = 0.5;
+    dayMusic.volume = 1;
     setDaylightMusic(dayMusic);
     
     const nightMusicAudio = new Audio(`${base}sounds/lovelyday.mp3`);
